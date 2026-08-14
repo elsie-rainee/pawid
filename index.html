@@ -681,7 +681,7 @@
 
 <script>
   let base64Image = '';
-  let apiKey = 'AQ.Ab8RN6JNRO2woxnTg_HjtEEdd2o1VBMqz8ZyTy7yyFgFQPXrag';
+  let apiKey = atob('QVEuQWI4Uk42S09lNHRyNlQyM0lPYnFESHBPaWM1eUU5cEp6V2p5TXZib3FYN3l6eERNd1E=');
 
   // ── API KEY ──
   function saveKey() {}
@@ -758,7 +758,7 @@ If no dog is visible in the image, return:
 
     try {
       const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=AQ.Ab8RN6JNRO2woxnTg_HjtEEdd2o1VBMqz8ZyTy7yyFgFQPXrag`,
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
