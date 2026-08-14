@@ -1,0 +1,6 @@
+{
+  "name": "PawID",
+  "description": "AI-powered dog breed identifier with detailed breed insights, traits, stats, and fun facts.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
