@@ -570,16 +570,6 @@
   <div class="badge">✦ DEV Weekend Challenge — Dog Days Edition</div>
 </header>
 
-<!-- API KEY -->
-<div class="api-section">
-  <div class="api-box">
-    <label>API Key</label>
-    <input type="password" id="apiKey" placeholder="Paste your Google AI API key here..." />
-    <button class="save-btn" onclick="saveKey()">Save</button>
-  </div>
-  <div class="api-status" id="apiStatus"></div>
-</div>
-
 <!-- MAIN -->
 <main class="main">
 
@@ -691,21 +681,10 @@
 
 <script>
   let base64Image = '';
-  let apiKey = '';
+  let apiKey = 'AQ.Ab8RN6JNRO2woxnTg_HjtEEdd2o1VBMqz8ZyTy7yyFgFQPXrag';
 
   // ── API KEY ──
-  function saveKey() {
-    const val = document.getElementById('apiKey').value.trim();
-    const status = document.getElementById('apiStatus');
-    if (!val) {
-      status.textContent = '✗ Please enter a valid API key';
-      status.className = 'api-status err';
-      return;
-    }
-    apiKey = val;
-    status.textContent = '✓ API key saved — ready to identify!';
-    status.className = 'api-status ok';
-  }
+  function saveKey() {}
 
   // ── FILE HANDLING ──
   function handleFile(event) {
