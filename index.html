@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PawID — Dog Breed Identifier</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #22263a;
+    --border: #2e3347;
+    --accent: #f5a623;
+    --accent2: #ff6b6b;
+    --text: #e8eaf0;
+    --text-soft: #8b90a7;
+    --text-mute: #555a72;
+    --green: #4ade80;
+    --radius: 16px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* ── HEADER ── */
+  header {
+    width: 100%;
+    padding: 28px 24px 0;
+    text-align: center;
+    position: relative;
+  }
+
+  .logo {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(2.4rem, 6vw, 4rem);
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    line-height: 1;
+    background: linear-gradient(135deg, var(--accent) 0%, #ff9f43 50%, var(--accent2) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .tagline {
+    font-size: 0.95rem;
+    color: var(--text-soft);
+    margin-top: 8px;
+    font-weight: 300;
+    letter-spacing: 0.04em;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(245, 166, 35, 0.12);
+    border: 1px solid rgba(245, 166, 35, 0.3);
+    color: var(--accent);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 4px 12px;
+    border-radius: 20px;
+    margin-top: 14px;
+    display: inline-block;
+  }
+
+  /* ── API KEY SECTION ── */
+  .api-section {
+    width: 100%;
+    max-width: 620px;
+    margin: 32px auto 0;
+    padding: 0 20px;
+  }
+
+  .api-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .api-box label {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-soft);
+    white-space: nowrap;
+  }
+
+  .api-box input {
+    flex: 1;
+    min-width: 200px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .api-box input:focus { border-color: var(--accent); }
+  .api-box input::placeholder { color: var(--text-mute); }
+
+  .save-btn {
+    background: var(--accent);
+    color: #0f1117;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-weight: 600;
+    font-size: 0.88rem;
+    cursor: pointer;
+    transition: opacity 0.2s;
+    white-space: nowrap;
+  }
+  .save-btn:hover { opacity: 0.85; }
+
+  .api-status {
+    font-size: 12px;
+    margin-top: 8px;
+    padding-left: 4px;
+  }
+  .api-status.ok { color: var(--green); }
+  .api-status.err { color: var(--accent2); }
+
+  /* ── MAIN CARD ── */
+  .main {
+    width: 100%;
+    max-width: 620px;
+    margin: 24px auto 60px;
+    padding: 0 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  /* ── UPLOAD ZONE ── */
+  .upload-zone {
+    background: var(--surface);
+    border: 2px dashed var(--border);
+    border-radius: var(--radius);
+    padding: 48px 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+    position: relative;
+  }
+
+  .upload-zone:hover, .upload-zone.drag-over {
+    border-color: var(--accent);
+    background: rgba(245, 166, 35, 0.04);
+  }
+
+  .upload-zone input[type="file"] {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+  }
+
+  .upload-icon {
+    font-size: 3rem;
+    margin-bottom: 12px;
+    display: block;
+  }
+
+  .upload-title {
+    font-family: 'Fraunces', serif;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+
+  .upload-sub {
+    font-size: 0.88rem;
+    color: var(--text-soft);
+  }
+
+  /* ── PREVIEW ── */
+  .preview-wrap {
+    display: none;
+    position: relative;
+    border-radius: var(--radius);
+    overflow: hidden;
+    background: var(--surface);
+    border: 1px solid var(--border);
+  }
+
+  .preview-wrap img {
+    width: 100%;
+    max-height: 380px;
+    object-fit: cover;
+    display: block;
+  }
+
+  .preview-overlay {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    display: flex;
+    gap: 8px;
+  }
+
+  .chip-btn {
+    background: rgba(15, 17, 23, 0.85);
+    backdrop-filter: blur(8px);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 8px;
+    padding: 7px 14px;
+    font-size: 0.82rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .chip-btn:hover { background: var(--surface2); }
+  .chip-btn.primary {
+    background: var(--accent);
+    color: #0f1117;
+    border-color: var(--accent);
+    font-weight: 700;
+  }
+  .chip-btn.primary:hover { opacity: 0.88; }
+
+  /* ── ANALYZE BTN ── */
+  .analyze-btn {
+    width: 100%;
+    background: linear-gradient(135deg, var(--accent), #ff9f43);
+    color: #0f1117;
+    border: none;
+    border-radius: var(--radius);
+    padding: 18px;
+    font-family: 'Fraunces', serif;
+    font-size: 1.15rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: opacity 0.2s, transform 0.1s;
+    letter-spacing: 0.01em;
+  }
+  .analyze-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+  .analyze-btn:active { transform: translateY(0); }
+  .analyze-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+  /* ── LOADING ── */
+  .loading {
+    display: none;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 40px 24px;
+    text-align: center;
+  }
+
+  .paw-loader {
+    font-size: 2.5rem;
+    animation: pawBounce 0.8s infinite alternate;
+    display: block;
+    margin-bottom: 16px;
+  }
+
+  @keyframes pawBounce {
+    from { transform: scale(0.9) rotate(-5deg); }
+    to { transform: scale(1.1) rotate(5deg); }
+  }
+
+  .loading-text {
+    font-family: 'Fraunces', serif;
+    font-size: 1.1rem;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+
+  .loading-sub {
+    font-size: 0.85rem;
+    color: var(--text-soft);
+  }
+
+  .progress-bar {
+    width: 100%;
+    max-width: 200px;
+    height: 3px;
+    background: var(--border);
+    border-radius: 2px;
+    margin: 16px auto 0;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 2px;
+    animation: progressAnim 1.5s ease-in-out infinite;
+  }
+
+  @keyframes progressAnim {
+    0% { width: 0%; margin-left: 0%; }
+    50% { width: 70%; margin-left: 15%; }
+    100% { width: 0%; margin-left: 100%; }
+  }
+
+  /* ── RESULTS ── */
+  .results {
+    display: none;
+    flex-direction: column;
+    gap: 16px;
+    animation: fadeUp 0.4s ease;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .breed-hero {
+    background: linear-gradient(135deg, var(--surface) 0%, var(--surface2) 100%);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px 28px 24px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .breed-hero::before {
+    content: '🐕';
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 5rem;
+    opacity: 0.08;
+    pointer-events: none;
+  }
+
+  .breed-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+
+  .breed-name {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(1.8rem, 5vw, 2.6rem);
+    font-weight: 900;
+    color: var(--text);
+    line-height: 1.1;
+    margin-bottom: 12px;
+  }
+
+  .confidence-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 4px;
+  }
+
+  .conf-label { font-size: 12px; color: var(--text-soft); }
+
+  .conf-track {
+    flex: 1;
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .conf-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--green));
+    border-radius: 2px;
+    transition: width 1s ease;
+  }
+
+  .conf-pct { font-size: 12px; font-weight: 600; color: var(--green); }
+
+  /* ── STATS GRID ── */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 18px;
+    transition: border-color 0.2s;
+  }
+  .stat-card:hover { border-color: var(--accent); }
+
+  .stat-icon { font-size: 1.4rem; margin-bottom: 8px; display: block; }
+
+  .stat-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-mute);
+    margin-bottom: 4px;
+  }
+
+  .stat-value {
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--text);
+    line-height: 1.3;
+  }
+
+  /* ── TEMPERAMENT TAGS ── */
+  .section-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px 22px;
+  }
+
+  .section-title {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-mute);
+    margin-bottom: 14px;
+  }
+
+  .tags-wrap {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .tag {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text-soft);
+    font-size: 0.85rem;
+    padding: 5px 12px;
+    border-radius: 20px;
+    transition: all 0.2s;
+  }
+  .tag:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* ── FUN FACTS ── */
+  .facts-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .fact-item {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    padding: 12px 14px;
+    background: var(--surface2);
+    border-radius: 10px;
+    border: 1px solid transparent;
+    transition: border-color 0.2s;
+  }
+  .fact-item:hover { border-color: var(--border); }
+
+  .fact-num {
+    font-family: 'Fraunces', serif;
+    font-size: 1.1rem;
+    font-weight: 900;
+    color: var(--accent);
+    opacity: 0.7;
+    flex-shrink: 0;
+    line-height: 1.4;
+  }
+
+  .fact-text {
+    font-size: 0.9rem;
+    color: var(--text-soft);
+    line-height: 1.6;
+  }
+
+  /* ── DESCRIPTION ── */
+  .desc-text {
+    font-size: 0.95rem;
+    color: var(--text-soft);
+    line-height: 1.75;
+  }
+
+  /* ── TRY AGAIN ── */
+  .try-again-btn {
+    width: 100%;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px;
+    color: var(--text-soft);
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: none;
+  }
+  .try-again-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* ── ERROR ── */
+  .error-box {
+    display: none;
+    background: rgba(255, 107, 107, 0.08);
+    border: 1px solid rgba(255, 107, 107, 0.3);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    text-align: center;
+  }
+
+  .error-box .error-icon { font-size: 2rem; margin-bottom: 10px; display: block; }
+  .error-title { font-weight: 600; color: var(--accent2); margin-bottom: 6px; }
+  .error-msg { font-size: 0.88rem; color: var(--text-soft); }
+
+  /* ── FOOTER ── */
+  footer {
+    text-align: center;
+    padding: 0 20px 32px;
+    font-size: 12px;
+    color: var(--text-mute);
+  }
+
+  footer a { color: var(--text-soft); text-decoration: none; }
+  footer a:hover { color: var(--accent); }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 480px) {
+    .stats-grid { grid-template-columns: 1fr; }
+    .api-box { flex-direction: column; align-items: stretch; }
+    .save-btn { width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">🐾 PawID</div>
+  <div class="tagline">Instant dog breed identification powered by Google AI</div>
+  <div class="badge">✦ DEV Weekend Challenge — Dog Days Edition</div>
+</header>
+
+<!-- API KEY -->
+<div class="api-section">
+  <div class="api-box">
+    <label>API Key</label>
+    <input type="password" id="apiKey" placeholder="Paste your Google AI API key here..." />
+    <button class="save-btn" onclick="saveKey()">Save</button>
+  </div>
+  <div class="api-status" id="apiStatus"></div>
+</div>
+
+<!-- MAIN -->
+<main class="main">
+
+  <!-- Upload Zone -->
+  <div class="upload-zone" id="uploadZone">
+    <input type="file" id="fileInput" accept="image/*" onchange="handleFile(event)">
+    <span class="upload-icon">📸</span>
+    <div class="upload-title">Drop a dog photo here</div>
+    <div class="upload-sub">or click to browse — JPG, PNG, WEBP supported</div>
+  </div>
+
+  <!-- Preview -->
+  <div class="preview-wrap" id="previewWrap">
+    <img id="previewImg" src="" alt="Dog photo preview">
+    <div class="preview-overlay">
+      <button class="chip-btn" onclick="resetAll()">✕ Clear</button>
+      <button class="chip-btn primary" onclick="analyze()">🔍 Identify Breed</button>
+    </div>
+  </div>
+
+  <!-- Analyze Button (mobile fallback) -->
+  <button class="analyze-btn" id="analyzeBtn" onclick="analyze()">
+    🐕 Identify This Breed
+  </button>
+
+  <!-- Loading -->
+  <div class="loading" id="loading">
+    <span class="paw-loader">🐾</span>
+    <div class="loading-text">Sniffing out the breed...</div>
+    <div class="loading-sub">Google AI is analyzing your photo</div>
+    <div class="progress-bar"><div class="progress-fill"></div></div>
+  </div>
+
+  <!-- Error -->
+  <div class="error-box" id="errorBox">
+    <span class="error-icon">😕</span>
+    <div class="error-title">Something went wrong</div>
+    <div class="error-msg" id="errorMsg">Please check your API key and try again.</div>
+  </div>
+
+  <!-- Results -->
+  <div class="results" id="results">
+
+    <!-- Breed Hero -->
+    <div class="breed-hero">
+      <div class="breed-label">Identified Breed</div>
+      <div class="breed-name" id="breedName">—</div>
+      <div class="confidence-bar">
+        <span class="conf-label">Confidence</span>
+        <div class="conf-track"><div class="conf-fill" id="confFill" style="width:0%"></div></div>
+        <span class="conf-pct" id="confPct">—</span>
+      </div>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <span class="stat-icon">🌍</span>
+        <div class="stat-label">Origin</div>
+        <div class="stat-value" id="statOrigin">—</div>
+      </div>
+      <div class="stat-card">
+        <span class="stat-icon">📏</span>
+        <div class="stat-label">Size</div>
+        <div class="stat-value" id="statSize">—</div>
+      </div>
+      <div class="stat-card">
+        <span class="stat-icon">⚖️</span>
+        <div class="stat-label">Weight</div>
+        <div class="stat-value" id="statWeight">—</div>
+      </div>
+      <div class="stat-card">
+        <span class="stat-icon">⏳</span>
+        <div class="stat-label">Lifespan</div>
+        <div class="stat-value" id="statLifespan">—</div>
+      </div>
+    </div>
+
+    <!-- Description -->
+    <div class="section-card">
+      <div class="section-title">About This Breed</div>
+      <div class="desc-text" id="breedDesc">—</div>
+    </div>
+
+    <!-- Temperament -->
+    <div class="section-card">
+      <div class="section-title">Temperament</div>
+      <div class="tags-wrap" id="temperamentTags"></div>
+    </div>
+
+    <!-- Fun Facts -->
+    <div class="section-card">
+      <div class="section-title">Fun Facts</div>
+      <div class="facts-list" id="factsList"></div>
+    </div>
+
+  </div>
+
+  <!-- Try Again -->
+  <button class="try-again-btn" id="tryAgainBtn" onclick="resetAll()">
+    ↩ Identify Another Dog
+  </button>
+
+</main>
+
+<footer>
+  Built for the <a href="https://dev.to/challenges/weekend-2026-08-13" target="_blank">DEV Weekend Challenge: Dog Days Edition</a> &nbsp;·&nbsp; Powered by Google Gemini AI
+</footer>
+
+<script>
+  let base64Image = '';
+  let apiKey = '';
+
+  // ── API KEY ──
+  function saveKey() {
+    const val = document.getElementById('apiKey').value.trim();
+    const status = document.getElementById('apiStatus');
+    if (!val) {
+      status.textContent = '✗ Please enter a valid API key';
+      status.className = 'api-status err';
+      return;
+    }
+    apiKey = val;
+    status.textContent = '✓ API key saved — ready to identify!';
+    status.className = 'api-status ok';
+  }
+
+  // ── FILE HANDLING ──
+  function handleFile(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      showError('Please upload an image file (JPG, PNG, or WEBP).');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const result = e.target.result;
+      base64Image = result.split(',')[1];
+      document.getElementById('previewImg').src = result;
+      document.getElementById('previewWrap').style.display = 'block';
+      document.getElementById('uploadZone').style.display = 'none';
+      document.getElementById('analyzeBtn').style.display = 'flex';
+      hideAll();
+    };
+    reader.readAsDataURL(file);
+  }
+
+  // ── DRAG & DROP ──
+  const zone = document.getElementById('uploadZone');
+  zone.addEventListener('dragover', (e) => { e.preventDefault(); zone.classList.add('drag-over'); });
+  zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+  zone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    zone.classList.remove('drag-over');
+    const file = e.dataTransfer.files[0];
+    if (file && file.type.startsWith('image/')) {
+      const fakeEvent = { target: { files: [file] } };
+      handleFile(fakeEvent);
+    }
+  });
+
+  // ── ANALYZE ──
+  async function analyze() {
+    if (!apiKey) {
+      showError('Please enter and save your Google AI API key first.');
+      return;
+    }
+    if (!base64Image) {
+      showError('Please upload a dog photo first.');
+      return;
+    }
+
+    showLoading();
+
+    const prompt = `You are a professional dog breed expert. Analyze this image and identify the dog breed.
+
+Return ONLY a valid JSON object with this exact structure (no markdown, no backticks, no extra text):
+{
+  "breed": "Full breed name",
+  "confidence": 92,
+  "origin": "Country of origin",
+  "size": "Small / Medium / Large / Extra Large",
+  "weight": "Weight range e.g. 20-30 kg",
+  "lifespan": "e.g. 10-14 years",
+  "description": "2-3 sentence description of the breed's history and characteristics.",
+  "temperament": ["Friendly", "Intelligent", "Loyal", "Playful", "Energetic"],
+  "facts": [
+    "Interesting fact number one about this breed.",
+    "Interesting fact number two about this breed.",
+    "Interesting fact number three about this breed."
+  ]
+}
+
+If no dog is visible in the image, return:
+{"error": "No dog detected in this image. Please upload a clear photo of a dog."}`;
+
+    try {
+      const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{
+              parts: [
+                { text: prompt },
+                { inline_data: { mime_type: 'image/jpeg', data: base64Image } }
+              ]
+            }],
+            generationConfig: { temperature: 0.2, maxOutputTokens: 1000 }
+          })
+        }
+      );
+
+      if (!response.ok) {
+        const err = await response.json();
+        throw new Error(err?.error?.message || `API error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+      const cleaned = rawText.replace(/```json|```/g, '').trim();
+      const parsed = JSON.parse(cleaned);
+
+      if (parsed.error) {
+        showError(parsed.error);
+        return;
+      }
+
+      displayResults(parsed);
+
+    } catch (err) {
+      if (err.message.includes('API_KEY_INVALID') || err.message.includes('401')) {
+        showError('Invalid API key. Please check your Google AI API key and try again.');
+      } else if (err.message.includes('SyntaxError') || err instanceof SyntaxError) {
+        showError('Could not parse the AI response. Please try again.');
+      } else {
+        showError(err.message || 'Something went wrong. Please try again.');
+      }
+    }
+  }
+
+  // ── DISPLAY RESULTS ──
+  function displayResults(data) {
+    hideAll();
+
+    document.getElementById('breedName').textContent = data.breed || 'Unknown Breed';
+    document.getElementById('statOrigin').textContent = data.origin || '—';
+    document.getElementById('statSize').textContent = data.size || '—';
+    document.getElementById('statWeight').textContent = data.weight || '—';
+    document.getElementById('statLifespan').textContent = data.lifespan || '—';
+    document.getElementById('breedDesc').textContent = data.description || '—';
+
+    // Confidence bar
+    const conf = Math.min(100, Math.max(0, parseInt(data.confidence) || 85));
+    document.getElementById('confPct').textContent = `${conf}%`;
+    setTimeout(() => {
+      document.getElementById('confFill').style.width = `${conf}%`;
+    }, 100);
+
+    // Temperament tags
+    const tagsWrap = document.getElementById('temperamentTags');
+    tagsWrap.innerHTML = '';
+    (data.temperament || []).forEach(t => {
+      const tag = document.createElement('span');
+      tag.className = 'tag';
+      tag.textContent = t;
+      tagsWrap.appendChild(tag);
+    });
+
+    // Fun facts
+    const factsList = document.getElementById('factsList');
+    factsList.innerHTML = '';
+    (data.facts || []).forEach((fact, i) => {
+      factsList.innerHTML += `
+        <div class="fact-item">
+          <span class="fact-num">0${i + 1}</span>
+          <span class="fact-text">${fact}</span>
+        </div>`;
+    });
+
+    document.getElementById('results').style.display = 'flex';
+    document.getElementById('tryAgainBtn').style.display = 'block';
+    document.getElementById('analyzeBtn').style.display = 'none';
+  }
+
+  // ── HELPERS ──
+  function showLoading() {
+    hideAll();
+    document.getElementById('loading').style.display = 'block';
+  }
+
+  function showError(msg) {
+    hideAll();
+    document.getElementById('errorMsg').textContent = msg;
+    document.getElementById('errorBox').style.display = 'block';
+    document.getElementById('analyzeBtn').style.display = 'flex';
+  }
+
+  function hideAll() {
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('results').style.display = 'none';
+    document.getElementById('errorBox').style.display = 'none';
+    document.getElementById('tryAgainBtn').style.display = 'none';
+  }
+
+  function resetAll() {
+    base64Image = '';
+    document.getElementById('fileInput').value = '';
+    document.getElementById('previewWrap').style.display = 'none';
+    document.getElementById('uploadZone').style.display = 'block';
+    document.getElementById('analyzeBtn').style.display = 'none';
+    hideAll();
+  }
+</script>
+</body>
+</html>
